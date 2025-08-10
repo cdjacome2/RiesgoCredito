@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.riesgocrediticio.buro.BuroApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.85 s -- in com.riesgocrediticio.buro.BuroApplicationTests
