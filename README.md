@@ -1,1 +1,1 @@
-# RiesgoCredito
+# RiesgoCrediticio
