@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/buro-0.0.1-SNAPSHOT.jar app.jar
 
 # Exponer el puerto 8080 para acceder a la API
-EXPOSE 8080
+EXPOSE 80
 
 # Ejecutar el microservicio usando el archivo JAR
 ENTRYPOINT ["java", "-jar", "app.jar"]

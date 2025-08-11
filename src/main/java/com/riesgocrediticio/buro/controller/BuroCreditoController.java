@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping(path = "/api/riesgo-credito/v1", produces = "application/json")
+@RequestMapping(path = "/api/analisis/v1", produces = "application/json")
 @Tag(name = "Buró Crediticio", description = "API para consultar información de buró crediticio interno y externo")
 @Validated
 public class BuroCreditoController {
