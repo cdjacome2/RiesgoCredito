@@ -1,4 +1,4 @@
-name: Deploy Prestamos Riesgo Crediticio to AWS
+name: Deploy Prestamos RiesgoCrediticio to AWS
 
 on:
   push:
@@ -12,7 +12,7 @@ env:
   ECR_REPOSITORY: banquito-prestamos-analisis
   ECS_CLUSTER: banquito-cluster
   ECS_SERVICE: banquito-prestamos-analisis
-  CONTAINER_NAME: analisis
+  CONTAINER_NAME: analisis-container
 
 jobs:
   deploy:
@@ -59,58 +59,9 @@ jobs:
         echo "Pushing latest..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-    - name: Install jq (for JSON processing)
-      run: |
-        sudo apt-get update -y
-        sudo apt-get install -y jq
-
-    - name: Register new ECS task definition revision with new image
-      env:
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        set -euo pipefail
-        echo "Fetching current task definition for service $ECS_SERVICE..."
-        TD_ARN=$(aws ecs describe-services \
-          --cluster "$ECS_CLUSTER" \
-          --services "$ECS_SERVICE" \
-          --query "services[0].taskDefinition" \
-          --output text)
-        echo "Current TD: $TD_ARN"
-
-        echo "Describing task definition..."
-        aws ecs describe-task-definition --task-definition "$TD_ARN" --query "taskDefinition" > task-def.json
-
-        echo "Sanitizing task definition for register-task-definition input..."
-        cat task-def.json | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > task-def-input.json
-
-        IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-        echo "Setting image $IMAGE_URI on container $CONTAINER_NAME..."
-        cat task-def-input.json | jq --arg IMG "$IMAGE_URI" --arg NAME "$CONTAINER_NAME" \
-          '.containerDefinitions |= map(if .name == $NAME then .image = $IMG else . end)' > task-def-updated.json
-
-        echo "Registering new task definition revision..."
-        NEW_TD_ARN=$(aws ecs register-task-definition \
-          --cli-input-json file://task-def-updated.json \
-          --query "taskDefinition.taskDefinitionArn" \
-          --output text)
-        echo "NEW_TD_ARN=$NEW_TD_ARN" | tee -a $GITHUB_ENV
-
     - name: Update ECS service
       run: |
-        set -euo pipefail
-        echo "Updating ECS service $ECS_SERVICE in cluster $ECS_CLUSTER to task definition $NEW_TD_ARN..."
-        aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" --task-definition "$NEW_TD_ARN"
-        echo "Waiting for service to stabilize (up to ~15 min)..."
-        # Default waiter is ~10m; implement a simple extended wait with diagnostics
-        if ! aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" ; then
-          echo "Waiter failed. Recent service events:"
-          aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
-            --query "services[0].events[:15]" --output table | cat
-          echo "Load balancer and target group info:"
-          TG_ARN=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" --query "services[0].loadBalancers[0].targetGroupArn" --output text)
-          echo "TargetGroup: $TG_ARN"
-          if [ "$TG_ARN" != "None" ]; then
-            aws elbv2 describe-target-health --target-group-arn "$TG_ARN" | cat || true
-          fi
-          exit 1
-        fi
+        echo "Updating ECS service $ECS_SERVICE in cluster $ECS_CLUSTER..."
+        aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
+        echo "Waiting for service to stabilize..."
+        aws ecs wait services-stable --cluster $ECS_CLUSTER --services $ECS_SERVICE 
