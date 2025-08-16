@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-16T16:50:17-0500",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
+    date = "2025-08-16T17:33:03-0500",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class EgresosInternoMapperImpl implements EgresosInternoMapper {
@@ -75,18 +75,18 @@ public class EgresosInternoMapperImpl implements EgresosInternoMapper {
 
         EgresosInternoDto.EgresosInternoDtoBuilder egresosInternoDto = EgresosInternoDto.builder();
 
-        egresosInternoDto.id( entity.getId() );
         egresosInternoDto.cedulaCliente( entity.getCedulaCliente() );
-        egresosInternoDto.nombres( entity.getNombres() );
-        egresosInternoDto.institucionBancaria( entity.getInstitucionBancaria() );
-        egresosInternoDto.producto( entity.getProducto() );
-        egresosInternoDto.saldoPendiente( entity.getSaldoPendiente() );
-        egresosInternoDto.mesesPendientes( entity.getMesesPendientes() );
         egresosInternoDto.cuotaPago( entity.getCuotaPago() );
-        egresosInternoDto.mora( entity.getMora() );
-        egresosInternoDto.moraUltimosTresMeses( entity.getMoraUltimosTresMeses() );
         egresosInternoDto.fechaActualizacion( entity.getFechaActualizacion() );
         egresosInternoDto.fechaRegistro( entity.getFechaRegistro() );
+        egresosInternoDto.id( entity.getId() );
+        egresosInternoDto.institucionBancaria( entity.getInstitucionBancaria() );
+        egresosInternoDto.mesesPendientes( entity.getMesesPendientes() );
+        egresosInternoDto.mora( entity.getMora() );
+        egresosInternoDto.moraUltimosTresMeses( entity.getMoraUltimosTresMeses() );
+        egresosInternoDto.nombres( entity.getNombres() );
+        egresosInternoDto.producto( entity.getProducto() );
+        egresosInternoDto.saldoPendiente( entity.getSaldoPendiente() );
         egresosInternoDto.version( entity.getVersion() );
 
         return egresosInternoDto.build();

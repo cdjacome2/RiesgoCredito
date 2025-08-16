@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-16T16:50:17-0500",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
+    date = "2025-08-16T17:33:03-0500",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class IngresosInternoMapperImpl implements IngresosInternoMapper {
@@ -63,15 +63,15 @@ public class IngresosInternoMapperImpl implements IngresosInternoMapper {
 
         IngresosInternoDto.IngresosInternoDtoBuilder ingresosInternoDto = IngresosInternoDto.builder();
 
-        ingresosInternoDto.id( entity.getId() );
         ingresosInternoDto.cedulaCliente( entity.getCedulaCliente() );
-        ingresosInternoDto.nombres( entity.getNombres() );
-        ingresosInternoDto.institucionBancaria( entity.getInstitucionBancaria() );
-        ingresosInternoDto.producto( entity.getProducto() );
-        ingresosInternoDto.saldoPromedioMes( entity.getSaldoPromedioMes() );
-        ingresosInternoDto.numeroCuenta( entity.getNumeroCuenta() );
         ingresosInternoDto.fechaActualizacion( entity.getFechaActualizacion() );
         ingresosInternoDto.fechaRegistro( entity.getFechaRegistro() );
+        ingresosInternoDto.id( entity.getId() );
+        ingresosInternoDto.institucionBancaria( entity.getInstitucionBancaria() );
+        ingresosInternoDto.nombres( entity.getNombres() );
+        ingresosInternoDto.numeroCuenta( entity.getNumeroCuenta() );
+        ingresosInternoDto.producto( entity.getProducto() );
+        ingresosInternoDto.saldoPromedioMes( entity.getSaldoPromedioMes() );
         ingresosInternoDto.version( entity.getVersion() );
 
         return ingresosInternoDto.build();
