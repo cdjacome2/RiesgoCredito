@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-16T16:11:21-0500",
-    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
+    date = "2025-08-16T16:50:17-0500",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
 public class IngresosExternoMapperImpl implements IngresosExternoMapper {
@@ -63,15 +63,15 @@ public class IngresosExternoMapperImpl implements IngresosExternoMapper {
 
         IngresosExternoDto.IngresosExternoDtoBuilder ingresosExternoDto = IngresosExternoDto.builder();
 
-        ingresosExternoDto.cedulaCliente( entity.getCedulaCliente() );
-        ingresosExternoDto.fechaActualizacion( entity.getFechaActualizacion() );
-        ingresosExternoDto.fechaRegistro( entity.getFechaRegistro() );
         ingresosExternoDto.id( entity.getId() );
-        ingresosExternoDto.institucionBancaria( entity.getInstitucionBancaria() );
+        ingresosExternoDto.cedulaCliente( entity.getCedulaCliente() );
         ingresosExternoDto.nombres( entity.getNombres() );
-        ingresosExternoDto.numeroCuenta( entity.getNumeroCuenta() );
+        ingresosExternoDto.institucionBancaria( entity.getInstitucionBancaria() );
         ingresosExternoDto.producto( entity.getProducto() );
         ingresosExternoDto.saldoPromedioMes( entity.getSaldoPromedioMes() );
+        ingresosExternoDto.numeroCuenta( entity.getNumeroCuenta() );
+        ingresosExternoDto.fechaActualizacion( entity.getFechaActualizacion() );
+        ingresosExternoDto.fechaRegistro( entity.getFechaRegistro() );
         ingresosExternoDto.version( entity.getVersion() );
 
         return ingresosExternoDto.build();

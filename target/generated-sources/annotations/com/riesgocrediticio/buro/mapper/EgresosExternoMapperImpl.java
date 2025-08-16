@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-16T16:11:21-0500",
-    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
+    date = "2025-08-16T16:50:17-0500",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.6 (Oracle Corporation)"
 )
 @Component
 public class EgresosExternoMapperImpl implements EgresosExternoMapper {
@@ -75,18 +75,18 @@ public class EgresosExternoMapperImpl implements EgresosExternoMapper {
 
         EgresosExternoDto.EgresosExternoDtoBuilder egresosExternoDto = EgresosExternoDto.builder();
 
-        egresosExternoDto.cedulaCliente( entity.getCedulaCliente() );
-        egresosExternoDto.cuotaPago( entity.getCuotaPago() );
-        egresosExternoDto.fechaActualizacion( entity.getFechaActualizacion() );
-        egresosExternoDto.fechaRegistro( entity.getFechaRegistro() );
         egresosExternoDto.id( entity.getId() );
-        egresosExternoDto.institucionBancaria( entity.getInstitucionBancaria() );
-        egresosExternoDto.mesesPendientes( entity.getMesesPendientes() );
-        egresosExternoDto.mora( entity.getMora() );
-        egresosExternoDto.moraUltimosTresMeses( entity.getMoraUltimosTresMeses() );
+        egresosExternoDto.cedulaCliente( entity.getCedulaCliente() );
         egresosExternoDto.nombres( entity.getNombres() );
+        egresosExternoDto.institucionBancaria( entity.getInstitucionBancaria() );
         egresosExternoDto.producto( entity.getProducto() );
         egresosExternoDto.saldoPendiente( entity.getSaldoPendiente() );
+        egresosExternoDto.mesesPendientes( entity.getMesesPendientes() );
+        egresosExternoDto.cuotaPago( entity.getCuotaPago() );
+        egresosExternoDto.mora( entity.getMora() );
+        egresosExternoDto.moraUltimosTresMeses( entity.getMoraUltimosTresMeses() );
+        egresosExternoDto.fechaActualizacion( entity.getFechaActualizacion() );
+        egresosExternoDto.fechaRegistro( entity.getFechaRegistro() );
         egresosExternoDto.version( entity.getVersion() );
 
         return egresosExternoDto.build();
