@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -22,6 +25,7 @@ import java.util.UUID;
 @RequestMapping(path = "/v1", produces = "application/json")
 @Tag(name = "Buró Crediticio", description = "API para consultar información de buró crediticio interno y externo")
 @Validated
+@CrossOrigin(origins = "*")
 public class BuroCreditoController {
 
     private final BuroCreditoService buroCreditoService;
@@ -154,6 +158,54 @@ public class BuroCreditoController {
             log.error("Error al contar los clientes en el buro interno: {}", ex.getMessage(), ex);
             throw new RuntimeException("Error al contar los clientes en el buro interno", ex);
         }
+    }
+
+    @Operation(
+        summary = "Cuenta el número de clientes en el buro externo",
+        description = "Cuenta clientes únicos (por cédula) con registros externos."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Conteo exitoso",
+            content = @Content(schema = @Schema(implementation = Integer.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno")
+    })
+    @GetMapping("/clientes-externos/count")
+    public ResponseEntity<Integer> contarClientesEnBuroExterno() {
+        log.info("Solicitud recibida → Conteo de clientes en buró externo");
+        int total = buroCreditoService.contarClientesEnBuroExterno();
+        return ResponseEntity.ok(total);
+    }
+
+    @Operation(
+    summary = "Lista clientes del buró externo",
+    description = "Agrupa por cédula y devuelve ingresos/egresos, calificación y capacidad de pago. " +
+                  "Si no se envían parámetros, retorna TODO el buró externo."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Listado exitoso"),
+        @ApiResponse(responseCode = "500", description = "Error interno")
+    })
+    @GetMapping("/clientes-externos")
+    public ResponseEntity<List<ConsultaBuroCreditoResponse>> listarClientesExterno(
+        @Parameter(
+            description = "Institución a filtrar. " +
+                        "Ej: 'BANCO BANQUITO' o 'BANCO FICTICIO 1'. " +
+                        "Si se omite, no se aplica filtro por institución.",
+            example = "BANCO BANQUITO",
+            required = false
+        )
+        @RequestParam(name = "institucion", required = false) String institucion,
+        @Parameter(
+            description = "true = traer SOLO la institución indicada; false = EXCLUIR la institución indicada. " +
+                        "Por defecto false.",
+            example = "false",
+            required = false
+        )
+        @RequestParam(name = "incluirSolo", defaultValue = "false") boolean incluirSolo
+    ) {
+        log.info("Solicitud recibida → Listar clientes externos (institucion='{}', incluirSolo={})", institucion, incluirSolo);
+        List<ConsultaBuroCreditoResponse> lista = buroCreditoService.listarClientesExterno(institucion, incluirSolo);
+        return ResponseEntity.ok(lista);
     }
 
 }

@@ -688,4 +688,111 @@ public class BuroCreditoService {
 
         return diferencia.multiply(new BigDecimal("0.3")).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
+
+    private static final String BANCO_BANQUITO = "BANCO BANQUITO";
+
+    @Transactional(readOnly = true)
+    public int contarClientesEnBuroExterno() {
+        try {
+            log.info("Contando clientes en el buro externo (institución != BANCO BANQUITO)...");
+            Set<String> cedulas = new HashSet<>();
+
+            ingresosExternoRepository.findAll().stream()
+                .filter(i -> i.getInstitucionBancaria() != null) //&&
+                            //!i.getInstitucionBancaria().equalsIgnoreCase(BANCO_BANQUITO))
+                .map(IngresosExterno::getCedulaCliente)
+                .forEach(cedulas::add);
+
+            egresosExternoRepository.findAll().stream()
+                .filter(e -> e.getInstitucionBancaria() != null) //&&
+                            //!e.getInstitucionBancaria().equalsIgnoreCase(BANCO_BANQUITO))
+                .map(EgresosExterno::getCedulaCliente)
+                .forEach(cedulas::add);
+
+            int total = cedulas.size();
+            log.info("Total de clientes en buro externo: {}", total);
+            return total;
+        } catch (Exception ex) {
+            log.error("Error al contar clientes en el buro externo: {}", ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConsultaBuroCreditoResponse> listarClientesExterno(String institucionFiltro, boolean incluirSolo) {
+        try {
+            String objetivo = (institucionFiltro == null || institucionFiltro.isBlank())
+                    ? null
+                    : institucionFiltro.trim().replaceAll("\\s+", " ").toUpperCase();
+
+            // Filtro por institución (solo / excluir / sin filtro)
+            java.util.function.Predicate<String> coincide = banco -> {
+                if (banco == null) return false; 
+                if (objetivo == null) return true;
+                String nb = banco.trim().replaceAll("\\s+", " ").toUpperCase();
+                return incluirSolo ? nb.equals(objetivo) : !nb.equals(objetivo);
+            };
+
+            log.info("Listando clientes externos con filtro institucion='{}', incluirSolo={}", objetivo, incluirSolo);
+
+            Map<String, List<IngresosExterno>> ingresosPorCedula = new HashMap<>();
+            Map<String, List<EgresosExterno>> egresosPorCedula  = new HashMap<>();
+            Map<String, String> nombrePorCedula = new HashMap<>();
+
+            ingresosExternoRepository.findAll().stream()
+                .filter(i -> coincide.test(i.getInstitucionBancaria()))
+                .forEach(i -> {
+                    ingresosPorCedula.computeIfAbsent(i.getCedulaCliente(), k -> new ArrayList<>()).add(i);
+                    nombrePorCedula.putIfAbsent(i.getCedulaCliente(), i.getNombres());
+                });
+
+            egresosExternoRepository.findAll().stream()
+                .filter(e -> coincide.test(e.getInstitucionBancaria()))
+                .forEach(e -> {
+                    egresosPorCedula.computeIfAbsent(e.getCedulaCliente(), k -> new ArrayList<>()).add(e);
+                    nombrePorCedula.putIfAbsent(e.getCedulaCliente(), e.getNombres());
+                });
+
+            // Unión de cédulas con ingresos y/o egresos
+            Set<String> cedulas = new LinkedHashSet<>();
+            cedulas.addAll(ingresosPorCedula.keySet());
+            cedulas.addAll(egresosPorCedula.keySet());
+
+            List<ConsultaBuroCreditoResponse> resultado = new ArrayList<>();
+
+            for (String cedula : cedulas) {
+                List<IngresosExterno> ingresos = ingresosPorCedula.getOrDefault(cedula, Collections.emptyList());
+                List<EgresosExterno> egresos  = egresosPorCedula.getOrDefault(cedula, Collections.emptyList());
+                String nombre = nombrePorCedula.getOrDefault(cedula, null);
+
+                String calificacion = calcularCalificacionRiesgo(ingresos, egresos);
+                BigDecimal capacidad = calcularCapacidadPago(ingresos, egresos);
+
+                ConsultaBuroCreditoResponse dto = ConsultaBuroCreditoResponse.builder()
+                    .nombreCliente(nombre)
+                    .cedulaCliente(cedula)
+                    .ingresosInternos(Collections.emptyList())
+                    .egresosInternos(Collections.emptyList())
+                    .ingresosExternos(ingresosExternoMapper.toDtoList(ingresos))
+                    .egresosExternos(egresosExternoMapper.toDtoList(egresos))
+                    .calificacionRiesgo(calificacion)
+                    .capacidadPago(capacidad)
+                    .build();
+
+                resultado.add(dto);
+            }
+
+            resultado.sort(Comparator.comparing(
+                ConsultaBuroCreditoResponse::getNombreCliente,
+                Comparator.nullsLast(String::compareToIgnoreCase)
+            ));
+
+            log.info("Total de clientes externos listados (distinct por cédula): {}", resultado.size());
+            return resultado;
+
+        } catch (Exception ex) {
+            log.error("Error al listar clientes del buro externo: {}", ex.getMessage(), ex);
+            throw ex;
+        }
+    }
 }
