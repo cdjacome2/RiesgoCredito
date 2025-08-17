@@ -10,6 +10,6 @@ import java.util.List;
 @FeignClient(name = "clientes", url = "${clientes.url}")
 public interface ClienteBuroClient {
 
-    @GetMapping("/api/v1/clientes/listar-por-tipo-entidad")
+    @GetMapping("/api/clientes/v1/clientes/listar-por-tipo-entidad")
     List<ClienteDto> listarPorTipoEntidad(@RequestParam("tipoEntidad") String tipoEntidad);
 }
